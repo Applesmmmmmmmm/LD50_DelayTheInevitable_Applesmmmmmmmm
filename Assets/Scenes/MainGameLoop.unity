@@ -1704,7 +1704,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3066,7 +3066,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1105436469
 Transform:
   m_ObjectHideFlags: 0
@@ -3094,7 +3094,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3386,7 +3386,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -3858,6 +3858,26 @@ MonoBehaviour:
   _prefabSun: {fileID: 4069321932419419261, guid: 3a97b27f19896c14dbd3c6b92aa489fb, type: 3}
   _prefabOrbitLine: {fileID: 2152525511655702480, guid: 98835181e1cdc2e40a06240f9b45faa6, type: 3}
   _prefabPlayer: {fileID: 344156775905468676, guid: 5439e5cb056f04044b7c749097943f0b, type: 3}
+  _menuMusicAudioSource: {fileID: 1254304130}
+  _menuSFXAudioSource: {fileID: 668742371}
+  _gameMusicAudioSource: {fileID: 1958883374}
+  _gameSFXAudioSource: {fileID: 1105436470}
+  _gameBGMAudioClip: {fileID: 8300000, guid: f5a4feb99013240408bcf88c579a42ea, type: 3}
+  _gameBGMLoopAudioClip: {fileID: 8300000, guid: 959bf65faf8b8f8449ab4064838a1c1e, type: 3}
+  _gameTitleAudioClip: {fileID: 8300000, guid: 95848ad34bd162b4caf65ddd27dc54de, type: 3}
+  _gameScoreAudioClip:
+  - {fileID: 8300000, guid: 13398f865f7754946824d00cd6a7f885, type: 3}
+  - {fileID: 8300000, guid: 835cc2051a421184ebe749f217b8c877, type: 3}
+  - {fileID: 8300000, guid: b8027e50a82b89644a5655486092f544, type: 3}
+  - {fileID: 8300000, guid: 8d5b682c680708f4ba0dbf1d300f01ab, type: 3}
+  _gameRingDestroyAudioClip:
+  - {fileID: 8300000, guid: efb2eea1a879bed49a5cb5db0bf49259, type: 3}
+  - {fileID: 8300000, guid: d105b94666db00445b19235ff9f024be, type: 3}
+  - {fileID: 8300000, guid: d0e3aa62b073c824bb5b8cbd8cb5f3ef, type: 3}
+  - {fileID: 8300000, guid: 54248e86c8945144e8fc53a24adb22ac, type: 3}
+  - {fileID: 8300000, guid: 34325ddb9d811b84690c3db637e118f9, type: 3}
+  - {fileID: 8300000, guid: 8e5b6833fcd55554181260d4f3057f8c, type: 3}
+  - {fileID: 8300000, guid: 61f8c52a59aa63042951cdcfa88a3eea, type: 3}
   _scoreTMP: {fileID: 624894610}
   _maxOrbitPathRadius: 12.5
   _minOrbitPathRadius: 0.95
@@ -4513,7 +4533,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1958883373
 Transform:
   m_ObjectHideFlags: 0
@@ -4541,9 +4561,9 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
