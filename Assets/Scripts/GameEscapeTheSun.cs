@@ -2,67 +2,88 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Shapes;
-
-//TODO: Consider using only a subset of angles that can be the openings and randomly selecting from them.
-//TODO: Jumping
-    //Move away at the opposite of collapse speed? Check when we hit a ring. Should only allow player to go through holes. Don't even allow flipping by choice, only as a consequence of the direction we jumped?
-//TODO: Flipping Sides?
-
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameEscapeTheSun : MonoBehaviour
 {
     [SerializeField] private GameObject _prefabSun, _prefabOrbitLine, _prefabPlayer;
-    private GameObject _Sun;
+    private GameObject _sun;
     private GameObject[] _orbitLines;
     private GameObject _player;
 
+    [SerializeField] private TextMeshProUGUI _scoreTMP;
+
     //Ring orbit size from center of sun, max representing offscreen, min representing inside smallest sun.
-    [SerializeField] private float _maxOrbitPathRadius = 12.5f, _minOrbitPathRadius = .95f;
+    [SerializeField] private float _maxOrbitPathRadius = 12.5f, _minOrbitPathRadius = .25f;
     //The orbit paths will start at min transparency and lerp to max transparency as they get closer.
-    private float _minOrbitTransparency = 0, _maxOrbitTransparency = 128;
+    private float _minOrbitTransparency = 33, _maxOrbitTransparency = 255*2;
     [SerializeField] private int _maxPathCount = 7;
-    private List<KeyValuePair<float, float>> _radianStartEndPairsPossible = new List<KeyValuePair<float, float>>() {new KeyValuePair<float, float>(0,                   330 * Mathf.Deg2Rad), 
-                                                                                                                    new KeyValuePair<float, float>(30  * Mathf.Deg2Rad, 360 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(60  * Mathf.Deg2Rad, 390 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(90  * Mathf.Deg2Rad, 420 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(120 * Mathf.Deg2Rad, 450 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(150 * Mathf.Deg2Rad, 480 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(180 * Mathf.Deg2Rad, 510 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(210 * Mathf.Deg2Rad, 540 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(240 * Mathf.Deg2Rad, 570 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(270 * Mathf.Deg2Rad, 600 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(300 * Mathf.Deg2Rad, 630 * Mathf.Deg2Rad),
-                                                                                                                    new KeyValuePair<float, float>(330 * Mathf.Deg2Rad, 660 * Mathf.Deg2Rad)};
+    private List<KeyValuePair<float, float>> _radianStartEndPairsPossible = new List<KeyValuePair<float, float>>() {new KeyValuePair<float, float>( 25f * Mathf.Deg2Rad, 360f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>( 55f * Mathf.Deg2Rad, 390f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>( 85f * Mathf.Deg2Rad, 420f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(115f * Mathf.Deg2Rad, 450f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(145f * Mathf.Deg2Rad, 480f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(175f * Mathf.Deg2Rad, 510f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(205f * Mathf.Deg2Rad, 540f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(235f * Mathf.Deg2Rad, 570f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(265f * Mathf.Deg2Rad, 600f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(295f * Mathf.Deg2Rad, 630f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(325f * Mathf.Deg2Rad, 660f * Mathf.Deg2Rad),
+                                                                                                                    new KeyValuePair<float, float>(355f * Mathf.Deg2Rad, 690f * Mathf.Deg2Rad)};
+
+    private List<KeyValuePair<Color, Color>> _roygbivLerpColors = new List<KeyValuePair<Color, Color>>(){new KeyValuePair<Color, Color>(new Color(209f/255f, 0f, 0f), new Color(255f/255f, 102f/255f, 34f/255f)),
+                                                                                                         new KeyValuePair<Color, Color>(new Color(255f/255f, 102f/255f, 34f/255f), new Color(255f/255f, 218f/255f, 33f/255f)),
+                                                                                                         new KeyValuePair<Color, Color>(new Color(255f/255f, 218f/255f, 33f/255f), new Color(51f/255f, 221f/255f, 0f)),
+                                                                                                         new KeyValuePair<Color, Color>(new Color(51f/255f, 221f/255f, 0f), new Color(17f/255f, 51f/255f, 204f/255f)),
+                                                                                                         new KeyValuePair<Color, Color>(new Color(17f/255f, 51f/255f, 204f/255f), new Color(34f/255f, 0f, 102f/255f)),
+                                                                                                         new KeyValuePair<Color, Color>(new Color(34f/255f, 0f, 102f/255f), new Color(51f/255f, 0f, 68f/255f)),
+                                                                                                         new KeyValuePair<Color, Color>(new Color(51f/255f, 0f, 68f/255f), new Color(209f/255f, 0f, 0f))};
     
 
-    [SerializeField] private float _collapseSpeed = .08f;
+    [SerializeField] private float _collapseSpeed = .5f, _speedPercentIncrease = .025f;
 
-    private float _playerSpeed = 360/1.5f, _playerOffsetFromRadius = .3f, _playerRadius = .2f, _playerAngle, _playerDistance, _playerSnapDistance = .2f;
-    private bool _playerOnOutside = true, _playerMidJump = false, _orbitFartherThanPlayerPreJump = false;
+    private float _playerSpeed = 360/2.5f, _playerOffsetFromRadius = .3f, _playerRadius = .2f, _playerAngle, _playerDistance, _playerSnapDistance = .25f, _playerJumpSpeed = 5f, _playerOrbitPathLandingPadRadius;
+    private bool _playerOnOutside = true, _playerMidJump = false, _orbitFartherThanPlayerPreJump = false, _playerFoundLandingPad = false, _gameOver = false;
+    private int _score = 0;
+    private System.Random _random = new System.Random();
 
 
     [SerializeField] private Animator _animatorSettings;
 
     private void Start()
     {
-        _Sun = Instantiate(_prefabSun);
+        StartCoroutine(IncreaseCollapseSpeed());
+
+        _sun = Instantiate(_prefabSun);
         _orbitLines = new GameObject[_maxPathCount];
         float lastDiscRadius = 0;
         float oppositeMiddleOfLastMissingAngle = 0;
+
         for (int i = 0; i < _maxPathCount; i++)
         {
             _orbitLines[i] = Instantiate(_prefabOrbitLine);  
             _orbitLines[i].name = $"{_prefabOrbitLine.name}, index: {i}";
+            LerpBetweenColors lerpBetweenColors = _orbitLines[i].GetComponent<LerpBetweenColors>();
+            lerpBetweenColors.ColorToLerpFrom = _roygbivLerpColors[i % 7].Key;
+            lerpBetweenColors.ColorToLerpTo = _roygbivLerpColors[i % 7].Value;
+
             Disc disc = _orbitLines[i].GetComponent<Disc>();
             disc.Radius = lastDiscRadius = _maxOrbitPathRadius - (_maxOrbitPathRadius-_minOrbitPathRadius)/_maxPathCount * i;
-            KeyValuePair<float, float> startEndRadPair = _radianStartEndPairsPossible[i];
+            
+            //BUG: This will fail if the rings exceeds the number of permitted angles, could be fixed but for now this doesn't matter much.
+            //BUG: Shuffling not producing random values currently.
+            _radianStartEndPairsPossible.Shuffle();
+            KeyValuePair<float, float> startEndRadPair = _radianStartEndPairsPossible[0];
+            _radianStartEndPairsPossible.RemoveAt(0);
             disc.AngRadiansStart = startEndRadPair.Key;
             disc.AngRadiansEnd = startEndRadPair.Value;
+            
             float enclosedSectionInDegrees = ((startEndRadPair.Value * Mathf.Rad2Deg) - (startEndRadPair.Key * Mathf.Rad2Deg)) % 360;
             //The opposite of the gap, so we can guarantee starting in the correct zone.
             oppositeMiddleOfLastMissingAngle = startEndRadPair.Key * Mathf.Rad2Deg + enclosedSectionInDegrees / 2;
 
-            float progressToCenter = disc.Radius / (_maxOrbitPathRadius + _minOrbitPathRadius); 
+            float progressToCenter = disc.Radius / (_maxOrbitPathRadius + _minOrbitPathRadius);
             float alpha = Mathf.Lerp(_maxOrbitTransparency, _minOrbitTransparency, Mathf.Clamp(progressToCenter, 0f, 1f));
             disc.Color = new Color(disc.Color.r, disc.Color.g, disc.Color.b, alpha/255f);
         }
@@ -78,7 +99,12 @@ public class GameEscapeTheSun : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_animatorSettings.GetCurrentAnimatorStateInfo(0).IsName("GearIconOnly"))
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+        if (!_animatorSettings.gameObject.activeSelf || _animatorSettings.GetCurrentAnimatorStateInfo(0).IsName("GearIconOnly"))
         {
             Time.timeScale=1;
 
@@ -86,9 +112,21 @@ public class GameEscapeTheSun : MonoBehaviour
             float orbitSmallestDistanceToPlayer = Mathf.Infinity;
             float minUnaccessibleAngle = Mathf.Infinity;
             float maxUnaccessibleAngle = Mathf.Infinity;
-            bool withinSnappingDistance = false;
+            bool snapLocationDiscovered = false;
+            
+            Vector2 playerViewportPoint = Camera.main.WorldToViewportPoint(_player.transform.position);
+            if (_playerDistance < _minOrbitPathRadius || !(playerViewportPoint.x > 0 && playerViewportPoint.x < 1 && playerViewportPoint.y > 0 && playerViewportPoint.y < 1))
+            {
+                _player.SetActive(false);
+                _gameOver = true;
+            }
 
+            if (_scoreTMP.gameObject.activeSelf && Input.anyKeyDown)
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
 
+            bool orbitsEnabled = false;
             for (int i = 0; i < _maxPathCount; i++)
             {
                 Disc disc = _orbitLines[i].GetComponent<Disc>();
@@ -97,11 +135,23 @@ public class GameEscapeTheSun : MonoBehaviour
                 //If the orbit path is inside the sun and no longer visible, set it outside the screen again.
                 if (disc.Radius <= _minOrbitPathRadius)
                 {
+                    if (_gameOver)
+                    {
+                        _orbitLines[i].SetActive(false);
+                    }
+                    else
+                    {
+                        _score++;
+                        _scoreTMP.text = $"{_score}";
+                    }
                     //Take into account the overshoot, since we want to try and maintain perfect spacing of the rings.
                     disc.Radius = (_minOrbitPathRadius - disc.Radius) + _maxOrbitPathRadius;
                     //Give them a new radius so we don't see the same patterns.
                     //TODO change this to randomly select from a copy of the list, removing from it when choosing, and adding the one we're giving up back to the list.
-                    KeyValuePair<float, float> startEndRadPair = _radianStartEndPairsPossible[i];
+                    _radianStartEndPairsPossible.Shuffle();
+                    KeyValuePair<float, float> startEndRadPair = _radianStartEndPairsPossible[0];
+                    _radianStartEndPairsPossible.RemoveAt(0);
+                    _radianStartEndPairsPossible.Add(new KeyValuePair<float, float>(disc.AngRadiansStart, disc.AngRadiansEnd));
                     disc.AngRadiansStart = startEndRadPair.Key;
                     disc.AngRadiansEnd = startEndRadPair.Value;
                 }
@@ -125,19 +175,6 @@ public class GameEscapeTheSun : MonoBehaviour
                         minUnaccessibleAngle = startInDegrees;
                         maxUnaccessibleAngle = endInDegrees;
                     }
-                    if (_playerMidJump && !(_playerAngle > minUnaccessibleAngle && _playerAngle < maxUnaccessibleAngle) && currentOrbitDistanceToPlayer <= _playerSnapDistance)
-                    {
-                        if (_orbitFartherThanPlayerPreJump && currentOrbitDifferenceFromPlayer <= 0)
-                        {
-                            _playerMidJump = false;
-                            _playerDistance = orbitRadiusClosestToPlayer + _playerOffsetFromRadius;
-                        }
-                        else if(!_orbitFartherThanPlayerPreJump && currentOrbitDifferenceFromPlayer >= 0)
-                        {
-                            _playerMidJump = false;
-                            _playerDistance = orbitRadiusClosestToPlayer - _playerOffsetFromRadius;
-                        }
-                    }
                     if (!_playerMidJump)
                     {
                         if (currentOrbitDifferenceFromPlayer > 0)
@@ -155,6 +192,25 @@ public class GameEscapeTheSun : MonoBehaviour
                 float progressToCenter = disc.Radius / (_maxOrbitPathRadius + _minOrbitPathRadius);
                 float alpha = Mathf.Lerp(_maxOrbitTransparency, _minOrbitTransparency, Mathf.Clamp(progressToCenter, 0, 1));
                 disc.Color = new Color(disc.Color.r, disc.Color.g, disc.Color.b, alpha / 255);
+
+                if (_orbitLines[i].activeSelf)
+                {
+                    orbitsEnabled = true;
+                }
+            }
+
+            if (!orbitsEnabled)
+            {
+                _sun.transform.localScale *= .99f;
+            }
+            if(_sun.transform.localScale.x < .00025f)
+            {
+                _scoreTMP.gameObject.SetActive(true);
+            }
+
+            if (snapLocationDiscovered)
+            {
+                _playerMidJump = false;
             }
 
             //Rotate the player towards it's angle, then if it's not in motion to another ring check if it's on the inside or outside of the current ring and add or subtract distance to the closest ring.
@@ -162,28 +218,68 @@ public class GameEscapeTheSun : MonoBehaviour
             if (!_playerMidJump)
             {
                 float oldAngle = _playerAngle;
-                if (Input.GetKey(KeyCode.A))
-                {
-                    _playerAngle += _playerSpeed * Time.deltaTime;
-                }
-                if (Input.GetKey(KeyCode.D))
-                {
-                    _playerAngle -= _playerSpeed * Time.deltaTime;
-                }
+                _playerAngle -= Input.GetAxis("Horizontal") * _playerSpeed * Time.deltaTime;
+
                 if (_playerAngle < 0)
                 {
                     _playerAngle += 360;
                 }
                 _playerAngle = _playerAngle % 360;
-                if (_playerAngle > minUnaccessibleAngle && _playerAngle < maxUnaccessibleAngle)
+                if (_playerAngle >= minUnaccessibleAngle && _playerAngle <= maxUnaccessibleAngle)
                 {
                     _playerAngle = oldAngle;
                 }
                 _playerDistance = _player.transform.position.magnitude - (_collapseSpeed * Time.deltaTime);
-                if (Input.GetKey(KeyCode.Space))
+                if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3") || Input.GetButtonDown("Submit") || Input.GetButtonDown("Cancel"))
                 {
                     _playerMidJump = true;
-                    Debug.Log($"Jump Start.\n");
+                    _playerFoundLandingPad = false;
+                    if (_orbitFartherThanPlayerPreJump)
+                    {
+                        _playerOrbitPathLandingPadRadius = Mathf.NegativeInfinity;
+                    }
+                    else
+                    {
+                        _playerOrbitPathLandingPadRadius = Mathf.Infinity;
+                    }
+                    for (int i = 0; i < _maxPathCount; i++)
+                    {
+                        Disc disc = _orbitLines[i].GetComponent<Disc>();
+                        float endInDegrees = (disc.AngRadiansEnd * Mathf.Rad2Deg) % 360;
+                        float startInDegrees = (disc.AngRadiansStart * Mathf.Rad2Deg) % 360;
+                        if (endInDegrees < startInDegrees)
+                        {
+                            minUnaccessibleAngle = endInDegrees;
+                            maxUnaccessibleAngle = startInDegrees;
+                        }
+                        else
+                        {
+                            minUnaccessibleAngle = startInDegrees;
+                            maxUnaccessibleAngle = endInDegrees;
+                        }
+                        //Checking inward
+                        if (_orbitFartherThanPlayerPreJump)
+                        {
+                            if (disc.Radius <= _playerDistance && disc.Radius >= _playerOrbitPathLandingPadRadius && !(_playerAngle >= minUnaccessibleAngle && _playerAngle <= maxUnaccessibleAngle))
+                            {
+                                _playerFoundLandingPad = true;
+                                _playerOrbitPathLandingPadRadius = disc.Radius;
+                            }
+                        }
+                        else//CheckingOutward
+                        {
+                            if (disc.Radius >= _playerDistance && disc.Radius <= _playerOrbitPathLandingPadRadius && !(_playerAngle >= minUnaccessibleAngle && _playerAngle <= maxUnaccessibleAngle))
+                            {
+                                _playerFoundLandingPad = true;
+                                _playerOrbitPathLandingPadRadius = disc.Radius;
+                            }
+                        }
+                    }
+                    if (_orbitFartherThanPlayerPreJump && !_playerFoundLandingPad)
+                    {
+                        _playerFoundLandingPad = true;
+                        _playerOrbitPathLandingPadRadius = 0f;
+                    }
                 }
             }
             else
@@ -191,11 +287,32 @@ public class GameEscapeTheSun : MonoBehaviour
                 //If the ring we jump from is farther than us, then we jump inwards, otherwise we jump outwards.
                 if (_orbitFartherThanPlayerPreJump)
                 {
-                    _playerDistance = _player.transform.position.magnitude - (2 * _collapseSpeed * Time.deltaTime);
+                    _playerDistance = _player.transform.position.magnitude - (_playerJumpSpeed * Time.deltaTime);
                 }
                 else
                 {
-                    _playerDistance = _player.transform.position.magnitude + (_collapseSpeed * Time.deltaTime);
+                    _playerDistance = _player.transform.position.magnitude + (_playerJumpSpeed * Time.deltaTime);
+                }
+
+                if (_playerFoundLandingPad)
+                {
+                    _playerOrbitPathLandingPadRadius -= _collapseSpeed * Time.deltaTime;
+                    if (_orbitFartherThanPlayerPreJump)
+                    {
+                        if (Mathf.Approximately(_playerDistance, _playerOrbitPathLandingPadRadius+_playerSnapDistance) || _playerDistance < _playerOrbitPathLandingPadRadius)
+                        {
+                            _playerMidJump = false;
+                            _playerDistance = _playerOrbitPathLandingPadRadius + _playerSnapDistance;
+                        }
+                    }
+                    else
+                    {
+                        if (Mathf.Approximately(_playerDistance, _playerOrbitPathLandingPadRadius - _playerSnapDistance) || _playerDistance > _playerOrbitPathLandingPadRadius)
+                        {
+                            _playerMidJump = false;
+                            _playerDistance = _playerOrbitPathLandingPadRadius - _playerSnapDistance;
+                        }
+                    }
                 }
             }
 
@@ -207,4 +324,43 @@ public class GameEscapeTheSun : MonoBehaviour
             Time.timeScale=0;
         }
     }
+
+    private IEnumerator IncreaseCollapseSpeed()
+    {
+        for (int i = 0; i < 40; i++)
+        {
+            yield return new WaitForSeconds(1.5f);
+            _collapseSpeed *= (1 + _speedPercentIncrease);
+            _playerJumpSpeed *= (1 + _speedPercentIncrease*3);
+            _playerSpeed *= (1 + _speedPercentIncrease/2);
+            _maxOrbitTransparency *= (1 + _speedPercentIncrease);
+            _maxOrbitTransparency = Mathf.Clamp(_maxOrbitTransparency, 0, 255*3);
+            _minOrbitTransparency *= (1 + _speedPercentIncrease);
+            _minOrbitTransparency = Mathf.Clamp(_minOrbitTransparency, 0, 255 * 1.5f);
+            if (_gameOver) { break ;}
+        }
+        while(!_gameOver)
+        {
+            yield return new WaitForSeconds(3.0f);
+            _collapseSpeed *= (1 + _speedPercentIncrease);
+            _playerJumpSpeed *= (1 + _speedPercentIncrease*3);
+            _playerSpeed *= (1 + _speedPercentIncrease/2);
+            _maxOrbitTransparency *= (1 + _speedPercentIncrease);
+            _maxOrbitTransparency = Mathf.Clamp(_maxOrbitTransparency, 0, 255 * 3);
+            _minOrbitTransparency *= (1 + _speedPercentIncrease);
+            _minOrbitTransparency = Mathf.Clamp(_minOrbitTransparency, 0, 255 * 1.5f);
+        }
+        while (true)
+        {
+            yield return new WaitForSeconds(.03f);
+            _collapseSpeed *= (1 + _speedPercentIncrease);
+            _playerJumpSpeed *= (1 + _speedPercentIncrease * 3);
+            _playerSpeed *= (1 + _speedPercentIncrease / 2);
+            _maxOrbitTransparency *= (1 + _speedPercentIncrease);
+            _maxOrbitTransparency = Mathf.Clamp(_maxOrbitTransparency, 0, 255 * 3);
+            _minOrbitTransparency *= (1 + _speedPercentIncrease);
+            _minOrbitTransparency = Mathf.Clamp(_minOrbitTransparency, 0, 255 * 1.5f);
+        }
+    }
+
 }

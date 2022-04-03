@@ -5,7 +5,8 @@ using Shapes;
 
 public class LerpBetweenColors : MonoBehaviour
 {
-    [SerializeField] private Color _initial, _final;
+    [SerializeField] public Color ColorToLerpFrom, ColorToLerpTo;
+    [SerializeField] private bool _ignoreAlpha = true;
     private Color _current;
     [SerializeField] private float _speed = .025f;
     [SerializeField] private float _time = 0;
@@ -13,13 +14,15 @@ public class LerpBetweenColors : MonoBehaviour
 
     private void Start()
     {
-        _current = _initial;
+        _current = ColorToLerpFrom;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(_time < 0)
+        Disc d = GetComponent<Disc>();
+        
+        if (_time < 0)
         {
             toFinal = true;
             _time = 0;
@@ -38,8 +41,13 @@ public class LerpBetweenColors : MonoBehaviour
         {
             _time -= _speed * Time.deltaTime;
         }
-        _current = Color.Lerp(_initial, _final, _time);
-
+        
+        _current = Color.Lerp(ColorToLerpFrom, ColorToLerpTo, _time); 
+        
+        if (_ignoreAlpha)
+        {
+            _current.a = d.Color.a;
+        }
         GetComponent<Disc>().Color = _current;
     }
 }

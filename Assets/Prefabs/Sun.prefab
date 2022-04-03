@@ -47,8 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65ab62323fed79a488289aa7819aedeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initial: {r: 0.9254902, g: 0.3779641, b: 0.21176468, a: 1}
-  _final: {r: 0.9254902, g: 0.23137255, b: 0.21176471, a: 1}
+  ColorToLerpFrom: {r: 0.8679245, g: 0.09416164, b: 0.13888869, a: 0}
+  ColorToLerpTo: {r: 0.9254902, g: 0.3764706, b: 0.21176471, a: 0}
+  _ignoreAlpha: 1
   _speed: 0.5
   _time: 0
 --- !u!114 &4069321932419419253
